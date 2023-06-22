@@ -13,7 +13,7 @@ namespace ProjectTrackingSoftware.Repo
     {   
         static dbAccess con;
         static OracleConnection aOracleConnection;
-        public static TblUsers currentUser = null;
+        public static UserModel currentUser = null;
         public Task<bool> OnPostLogin(LoginModel model)
         {
             LoginUser(model);
@@ -52,11 +52,11 @@ namespace ProjectTrackingSoftware.Repo
 
         }
 
-        public static TblUsers LoginUser(LoginModel inputLoginVM, OracleTransaction CmdTrans, OracleConnection aOracleConnection)
+        public static UserModel LoginUser(LoginModel inputLoginVM, OracleTransaction CmdTrans, OracleConnection aOracleConnection)
 
 
         {
-            List<TblUsers> users = GetUserData();
+            List<UserModel> users = GetUserData();
 
             int r = 0;
             try
@@ -66,20 +66,18 @@ namespace ProjectTrackingSoftware.Repo
                 cmd.CommandType = CommandType.Text;
                 if (users.Count > 0)
                 {
-                    foreach (TblUsers user in users)
+                    foreach (UserModel user in users)
                     {
                         if (user.Email.Equals(inputLoginVM.Email) && user.Password.Equals(inputLoginVM.Password))
                         {
-                            currentUser = new TblUsers() { };
+                            currentUser = new UserModel() { };
                             currentUser.Email = inputLoginVM.Email;
                             currentUser.Password = inputLoginVM.Password;
-                            currentUser.User_ID = user.User_ID;
-                            currentUser.FName = user.FName;
+                            currentUser.Id = user.Id;
+                            currentUser.FirstName = user.FirstName;
                             return currentUser;
                         }
                     }
-
-
 
                 }
                 else
@@ -96,7 +94,7 @@ namespace ProjectTrackingSoftware.Repo
             }
             return null;
         }
-        public static List<TblUsers> GetUserData()
+        public static List<UserModel> GetUserData()
         {
             Open();
             OracleTransaction CmdTrans = aOracleConnection.BeginTransaction(IsolationLevel.ReadCommitted);
@@ -113,9 +111,9 @@ namespace ProjectTrackingSoftware.Repo
                 Close();
             }
         }
-        public static List<TblUsers> GetUserData(OracleTransaction CmdTrans, OracleConnection aOracleConnection)
+        public static List<UserModel> GetUserData(OracleTransaction CmdTrans, OracleConnection aOracleConnection)
         {
-            List<TblUsers> lst = new List<TblUsers>();
+            List<UserModel> lst = new List<UserModel>();
             try
             {
                 OracleCommand cmd = aOracleConnection.CreateCommand();
@@ -136,7 +134,7 @@ namespace ProjectTrackingSoftware.Repo
                         string fullname = dt.Rows[i]["FName"].ToString();
                         string password = dt.Rows[i]["PASSWORD"].ToString();
                         string ConfirmPassword = dt.Rows[i]["ConfirmPassword"].ToString();
-                        lst.Add(new TblUsers() { User_ID = id, Email = email, FName = fullname,  Password = password });
+                        lst.Add(new UserModel() { Id = id, Email = email, FirstName = fullname,  Password = password });
                     }
                 }
                 return lst;
